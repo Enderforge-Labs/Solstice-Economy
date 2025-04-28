@@ -28,13 +28,11 @@ public class EconomyModule extends ModuleBase.Toggleable {
         commands.add(new BalanceCommand(this));
         commands.add(new PayCommand(this));
 
-
     }
 
-    public EconomyConfig getConfig() {
+    public static EconomyConfig getConfig() {
         return Solstice.configManager.getData(EconomyConfig.class);
     }
-
 
     public EconomyPlayerData getPlayer(UUID uuid) {
         return Solstice.playerData.get(uuid).getData(EconomyPlayerData.class);

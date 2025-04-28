@@ -1,1 +1,1 @@
-# Solstice-Economy
+# Solstice Economy

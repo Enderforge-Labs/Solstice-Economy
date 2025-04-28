@@ -1,8 +1,8 @@
 package com.herrkatze.solsticeEconomy.modules.economy.commands;
 
+import com.herrkatze.solsticeEconomy.modules.economy.CurrencyParser;
 import com.herrkatze.solsticeEconomy.modules.economy.EconomyModule;
 import com.mojang.authlib.GameProfile;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -14,9 +14,11 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.util.Currency;
 import java.util.List;
 import java.util.Map;
 
+import static com.herrkatze.solsticeEconomy.modules.economy.CurrencyRenderer.renderCurrency;
 import static com.herrkatze.solsticeEconomy.modules.economy.EconomyManager.*;
 
 public class EconomyAdminCommand extends ModCommand<EconomyModule> {
@@ -37,12 +39,11 @@ public class EconomyAdminCommand extends ModCommand<EconomyModule> {
                         .requires(require("add",3))
                             .then(Commands.argument("player", StringArgumentType.word())
                                 .suggests(LocalGameProfile::suggest)
-                                .then(Commands.argument("amount", LongArgumentType.longArg(0))
+                                .then(Commands.argument("amount", StringArgumentType.word())
                                     .executes(context -> executeAdd(
                                             context,
                                             LocalGameProfile.getProfile(context, "player"),
-                                            LongArgumentType.getLong(context,"amount")
-
+                                            CurrencyParser.getCentsArgument(context,"amount")
                                     ))
                                 )
                             )
@@ -51,12 +52,11 @@ public class EconomyAdminCommand extends ModCommand<EconomyModule> {
                         .requires(require("set",3))
                         .then(Commands.argument("player", StringArgumentType.word())
                                 .suggests(LocalGameProfile::suggest)
-                                .then(Commands.argument("amount", LongArgumentType.longArg(0))
+                                .then(Commands.argument("amount", StringArgumentType.word())
                                         .executes(context -> executeSet(
                                                 context,
                                                 LocalGameProfile.getProfile(context, "player"),
-                                                LongArgumentType.getLong(context,"amount")
-
+                                                CurrencyParser.getCentsArgument(context,"amount")
                                         ))
                                 )
                         )
@@ -65,11 +65,11 @@ public class EconomyAdminCommand extends ModCommand<EconomyModule> {
                         .requires(require("subtract",3))
                         .then(Commands.argument("player", StringArgumentType.word())
                                 .suggests(LocalGameProfile::suggest)
-                                .then(Commands.argument("amount", LongArgumentType.longArg(0))
+                                .then(Commands.argument("amount", StringArgumentType.word())
                                         .executes(context -> executeSubtract(
                                                 context,
                                                 LocalGameProfile.getProfile(context, "player"),
-                                                LongArgumentType.getLong(context,"amount")
+                                                CurrencyParser.getCentsArgument(context,"amount")
                                         ))
                                 )
                         )
@@ -81,7 +81,7 @@ public class EconomyAdminCommand extends ModCommand<EconomyModule> {
     private int executeAdd(CommandContext<CommandSourceStack> context, GameProfile player, long amount) {
         addCurrency(player.getId(),amount);
         Map<String, Component> map = Map.of(
-                "amount",Component.literal(String.valueOf(amount)),
+                "amount",renderCurrency(amount),
                 "player",Component.literal(player.getName())
         );
         context.getSource().sendSuccess(() -> module.locale().get("addCurrencySuccess",map),true);
@@ -94,7 +94,7 @@ public class EconomyAdminCommand extends ModCommand<EconomyModule> {
     private int executeSet(CommandContext<CommandSourceStack> context, GameProfile player, long amount) {
         setCurrency(player.getId(), amount);
         Map<String, Component> map = Map.of(
-                "amount",Component.literal(String.valueOf(amount)),
+                "amount",renderCurrency(amount),
                 "player",Component.literal(player.getName())
         );
         context.getSource().sendSuccess(() -> module.locale().get("setCurrencySuccess",map),true);
@@ -107,7 +107,7 @@ public class EconomyAdminCommand extends ModCommand<EconomyModule> {
     private int executeSubtract(CommandContext<CommandSourceStack> context, GameProfile player,long amount) {
         subtractCurrency(player.getId(), amount);
         Map<String, Component> map = Map.of(
-                "amount",Component.literal(String.valueOf(amount)),
+                "amount", renderCurrency(amount),
                 "player",Component.literal(player.getName())
         );
         context.getSource().sendSuccess(() -> module.locale().get("subtractCurrencySuccess",map),true);

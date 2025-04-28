@@ -14,6 +14,8 @@ import net.minecraft.server.level.ServerPlayer;
 import java.util.List;
 import java.util.Map;
 
+import static com.herrkatze.solsticeEconomy.modules.economy.CurrencyRenderer.renderCurrency;
+
 public class BalanceCommand extends ModCommand<EconomyModule> {
     public BalanceCommand(EconomyModule module) {
         super(module);
@@ -34,7 +36,7 @@ public class BalanceCommand extends ModCommand<EconomyModule> {
                     return 0;
                 }
                 long balance = EconomyManager.getCurrency(player.getUUID());
-                Map<String,Component> map = Map.of("balance", Component.literal(String.valueOf(balance)));
+                Map<String,Component> map = Map.of("balance", renderCurrency(balance));
                 context.getSource().sendSuccess(() -> module.locale().get("balance",map),false);
                 return 1;
             })
@@ -46,7 +48,7 @@ public class BalanceCommand extends ModCommand<EconomyModule> {
                     long balance = EconomyManager.getCurrency(profile.getId());
                     Map<String,Component> map = Map.of(
                             "player", Component.literal(profile.getName()),
-                            "balance",Component.literal(String.valueOf(balance)));
+                            "balance",renderCurrency(balance));
                     context.getSource().sendSuccess(() -> module.locale().get("balanceOthers",map),false);
                     return 1;
                 }));

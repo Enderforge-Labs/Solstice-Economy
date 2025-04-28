@@ -1,5 +1,6 @@
 package com.herrkatze.solsticeEconomy.modules.economy.commands;
 
+import com.herrkatze.solsticeEconomy.modules.economy.CurrencyParser;
 import com.herrkatze.solsticeEconomy.modules.economy.EconomyManager;
 import com.herrkatze.solsticeEconomy.modules.economy.EconomyModule;
 import com.herrkatze.solsticeEconomy.modules.economy.data.EconomyLocale;
@@ -20,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.herrkatze.solsticeEconomy.modules.economy.CurrencyRenderer.renderCurrency;
+
 public class PayCommand extends ModCommand<EconomyModule> {
 
     public PayCommand(EconomyModule module) {
@@ -36,11 +39,11 @@ public class PayCommand extends ModCommand<EconomyModule> {
         return Commands.literal(name)
             .then(Commands.argument("player", StringArgumentType.word())
                 .suggests(LocalGameProfile::suggest)
-                .then(Commands.argument("amount", LongArgumentType.longArg(0))
+                .then(Commands.argument("amount", StringArgumentType.word())
                     .executes(context -> executePay(
                             context,
                             LocalGameProfile.getProfile(context,"player"),
-                            LongArgumentType.getLong(context,"amount")
+                            CurrencyParser.getCentsArgument(context,"amount")
                     )))
         );
     }
@@ -62,7 +65,7 @@ public class PayCommand extends ModCommand<EconomyModule> {
         }
         Map<String,Component> map = Map.of(
                 "player", Component.literal(player2.getName()),
-                "amount", Component.literal(String.valueOf(amount)),
+                "amount", renderCurrency(amount),
                 "sender", player1.getDisplayName()
         );
         context.getSource().sendSuccess(() -> module.locale().get("paySuccess",map),false);
