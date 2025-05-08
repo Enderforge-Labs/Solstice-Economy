@@ -10,17 +10,27 @@ import java.util.UUID;
 
 public class EconomyManager {
     public static boolean addCurrency(UUID player,long amount){
+        if(amount <=0){
+            return false;
+        }
+        return modifyCurrency(player,amount);
+    }
+    private static boolean modifyCurrency(UUID player,long deltaBalance) {
         EconomyPlayerData data =  Solstice.playerData.get(player).getData(EconomyPlayerData.class);
-        data.balance += amount;
+        data.balance += deltaBalance;
         return true;
     }
+
     public static boolean setCurrency(UUID player,long amount){
         EconomyPlayerData data =  Solstice.playerData.get(player).getData(EconomyPlayerData.class);
         data.balance = amount;
         return true;
     }
     public static boolean subtractCurrency(UUID player,long amount){
-        return addCurrency(player,-amount);
+        if(amount <=0){
+            return false;
+        }
+        return modifyCurrency(player,amount);
     }
     public static boolean transferCurrency(UUID player1,UUID player2,long amount){
         // Transfer <amount> currency from player1 to player2
