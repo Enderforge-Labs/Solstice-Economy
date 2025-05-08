@@ -53,6 +53,14 @@ public class PayCommand extends ModCommand<EconomyModule> {
             context.getSource().sendFailure(Component.literal("This command must be ran by a player"));
             return 0;
         }
+        if (player1.getUUID() == player2.getId()) {
+            context.getSource().sendFailure(module.locale().get("noSelfPay"));
+            return 0;
+        }
+        if (amount <= 0) {
+            context.getSource().sendFailure(module.locale().get("positiveAmountRequired"));
+            return 0;
+        }
         UUID player1UUID = player1.getUUID();
         long balance = EconomyManager.getCurrency(player1UUID);
         if (balance < amount) {
