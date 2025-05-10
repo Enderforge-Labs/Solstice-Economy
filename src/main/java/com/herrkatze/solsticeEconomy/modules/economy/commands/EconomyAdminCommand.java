@@ -2,6 +2,8 @@ package com.herrkatze.solsticeEconomy.modules.economy.commands;
 
 import com.herrkatze.solsticeEconomy.modules.economy.CurrencyParser;
 import com.herrkatze.solsticeEconomy.modules.economy.EconomyModule;
+import com.herrkatze.solsticeEconomy.modules.economy.Notification;
+import com.herrkatze.solsticeEconomy.modules.economy.NotificationManager;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -87,7 +89,7 @@ public class EconomyAdminCommand extends ModCommand<EconomyModule> {
         context.getSource().sendSuccess(() -> module.locale().get("addCurrencySuccess",map),true);
         ServerPlayer player1 = context.getSource().getServer().getPlayerList().getPlayer(player.getId());
         if (player1 != null) {
-            player1.sendSystemMessage(module.locale().get("currencyAddNotification",map));
+            NotificationManager.sendNotification(new Notification(module.locale().get("currencyAddNotification",map)),player1); // Use custom notification here since only the admin command will use this specific message
         }
         return 1;
     }
@@ -100,7 +102,7 @@ public class EconomyAdminCommand extends ModCommand<EconomyModule> {
         context.getSource().sendSuccess(() -> module.locale().get("setCurrencySuccess",map),true);
         ServerPlayer player1 = context.getSource().getServer().getPlayerList().getPlayer(player.getId());
         if (player1 != null) {
-            player1.sendSystemMessage(module.locale().get("currencySetNotification",map));
+            NotificationManager.sendNotification(new Notification(module.locale().get("currencySetNotification",map)),player1);
         }
         return 1;
     }
@@ -113,7 +115,7 @@ public class EconomyAdminCommand extends ModCommand<EconomyModule> {
         context.getSource().sendSuccess(() -> module.locale().get("subtractCurrencySuccess",map),true);
         ServerPlayer player1 = context.getSource().getServer().getPlayerList().getPlayer(player.getId());
         if (player1 != null) {
-            player1.sendSystemMessage(module.locale().get("currencySubtractNotification",map));
+            NotificationManager.sendNotification(new Notification(module.locale().get("currencySubtractNotification",map)),player1);
         }
         return 1;
     }

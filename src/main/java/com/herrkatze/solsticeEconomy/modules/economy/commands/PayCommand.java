@@ -1,8 +1,6 @@
 package com.herrkatze.solsticeEconomy.modules.economy.commands;
 
-import com.herrkatze.solsticeEconomy.modules.economy.CurrencyParser;
-import com.herrkatze.solsticeEconomy.modules.economy.EconomyManager;
-import com.herrkatze.solsticeEconomy.modules.economy.EconomyModule;
+import com.herrkatze.solsticeEconomy.modules.economy.*;
 import com.herrkatze.solsticeEconomy.modules.economy.data.EconomyLocale;
 import com.herrkatze.solsticeEconomy.modules.economy.data.EconomyPlayerData;
 import com.mojang.authlib.GameProfile;
@@ -73,13 +71,12 @@ public class PayCommand extends ModCommand<EconomyModule> {
         }
         Map<String,Component> map = Map.of(
                 "player", Component.literal(player2.getName()),
-                "amount", renderCurrency(amount),
-                "sender", player1.getDisplayName()
+                "amount", renderCurrency(amount)
         );
         context.getSource().sendSuccess(() -> module.locale().get("paySuccess",map),false);
         ServerPlayer player2Entity = context.getSource().getServer().getPlayerList().getPlayer(player2.getId());
         if (player2Entity != null) {
-            player2Entity.sendSystemMessage(module.locale().get("payReceived",map));
+            NotificationManager.sendNotification(PlayerBalanceNotifications.PayNotification(amount,player1),player2Entity);
         }
         return 1;
     }
