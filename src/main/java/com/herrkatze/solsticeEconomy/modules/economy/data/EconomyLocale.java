@@ -17,7 +17,9 @@ public class EconomyLocale {
             Map.entry("currencySetNotification","<green>Your balance was set to <gold>$${amount}</gold> by an admin</green>"),
             Map.entry("currencySubtractNotification","<green><gold>$${amount}</gold> was subtracted from your balance by an admin</green>"),
             Map.entry("positiveAmountRequired","<red>You must pay a positive nonzero amount.</red>"),
-            Map.entry("noSelfPay","<red>You can't pay yourself</red>")
+            Map.entry("noSelfPay","<red>You can't pay yourself</red>"),
+            Map.entry("genericReceive","<green>You have received <gold>$${amount}</gold></green>"),
+            Map.entry("refundReceive","<green>You have been refunded <gold>$${amount}</gold></green>")
 
     );
 }
