@@ -20,7 +20,8 @@ public class EconomyLocale {
             Map.entry("noSelfPay","<red>You can't pay yourself</red>"),
             Map.entry("genericReceive","<green>You have received <gold>$${amount}</gold></green>"),
             Map.entry("refundReceive","<green>You have been refunded <gold>$${amount}</gold></green>"),
-            Map.entry("licenseKey","<green>Your Economy License Key is <blue><click:copy_to_clipboard:${key}>${key}</click></blue>, click to copy</green>")
+            Map.entry("licenseKey","<green>Your Economy License Key is <blue><click:copy_to_clipboard:${key}>${key}</click></blue>, click to copy</green>"),
+            Map.entry("licenseRevoke","<green>Revoked Economy license key. Use /eco license register to get a new one</green>")
 
     );
 }
