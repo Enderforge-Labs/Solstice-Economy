@@ -3,6 +3,7 @@ package com.herrkatze.solsticeEconomy.modules.economy.commands;
 import com.herrkatze.solsticeEconomy.modules.economy.*;
 import com.herrkatze.solsticeEconomy.modules.economy.data.EconomyLocale;
 import com.herrkatze.solsticeEconomy.modules.economy.data.EconomyPlayerData;
+import com.herrkatze.solsticeEconomy.modules.economy.integration.computercraft.CCEvents;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -68,6 +69,9 @@ public class PayCommand extends ModCommand<EconomyModule> {
         if (!EconomyManager.transferCurrency(player1UUID,player2.getId(),amount)) {
             context.getSource().sendFailure(module.locale().get("unknownError"));
             return 0;
+        }
+        if(EconomyModule.isCCPresent()) {
+            CCEvents.fireEvent(player2.getId(),"player_pay",player1.getName().getString(),(double) EconomyManager.getCurrency(player2.getId()) / 100d,(double) amount/100d,CurrencyRenderer.renderCurrency(EconomyManager.getCurrency(player2.getId())).getString(),CurrencyRenderer.renderCurrency(amount).getString());
         }
         Map<String,Component> map = Map.of(
                 "player", Component.literal(player2.getName()),

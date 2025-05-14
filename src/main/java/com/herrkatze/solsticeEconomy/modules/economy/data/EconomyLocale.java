@@ -19,7 +19,8 @@ public class EconomyLocale {
             Map.entry("positiveAmountRequired","<red>You must pay a positive nonzero amount.</red>"),
             Map.entry("noSelfPay","<red>You can't pay yourself</red>"),
             Map.entry("genericReceive","<green>You have received <gold>$${amount}</gold></green>"),
-            Map.entry("refundReceive","<green>You have been refunded <gold>$${amount}</gold></green>")
+            Map.entry("refundReceive","<green>You have been refunded <gold>$${amount}</gold></green>"),
+            Map.entry("licenseKey","<green>Your Economy License Key is <blue><click:copy_to_clipboard:${key}>${key}</click></blue>, click to copy</green>")
 
     );
 }

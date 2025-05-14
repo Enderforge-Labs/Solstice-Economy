@@ -1,11 +1,12 @@
 package com.herrkatze.solsticeEconomy.modules.economy.commands;
 
+import com.herrkatze.solsticeEconomy.SolsticeEconomy;
 import com.herrkatze.solsticeEconomy.modules.economy.CurrencyParser;
 import com.herrkatze.solsticeEconomy.modules.economy.EconomyModule;
 import com.herrkatze.solsticeEconomy.modules.economy.Notification;
 import com.herrkatze.solsticeEconomy.modules.economy.NotificationManager;
+import com.herrkatze.solsticeEconomy.modules.economy.integration.computercraft.LicenseManager;
 import com.mojang.authlib.GameProfile;
-import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -16,15 +17,15 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
-import java.util.Currency;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.herrkatze.solsticeEconomy.modules.economy.CurrencyRenderer.renderCurrency;
 import static com.herrkatze.solsticeEconomy.modules.economy.EconomyManager.*;
 
-public class EconomyAdminCommand extends ModCommand<EconomyModule> {
-    public EconomyAdminCommand(EconomyModule module) {
+public class EconomyCommand extends ModCommand<EconomyModule> {
+    public EconomyCommand(EconomyModule module) {
         super(module);
     }
 
@@ -36,7 +37,14 @@ public class EconomyAdminCommand extends ModCommand<EconomyModule> {
     @Override
     public LiteralArgumentBuilder<CommandSourceStack> command(String name) {
         return Commands.literal(name)
-                .requires(require("admin",3))
+                .then(Commands.literal("license")
+                        .then(Commands.literal("register")
+                                        .executes(this::executeLicenseRegister)
+                                )
+                        .then(Commands.literal("revoke")
+                                .executes(this::executeLicenseRevoke)
+                        )
+                        .executes(this::executeLicenseReminder))
                 .then(Commands.literal("add")
                         .requires(require("add",3))
                             .then(Commands.argument("player", StringArgumentType.word())
@@ -80,6 +88,63 @@ public class EconomyAdminCommand extends ModCommand<EconomyModule> {
 
     }
 
+    private int executeLicenseRevoke(CommandContext<CommandSourceStack> context) {
+        ServerPlayer player = context.getSource().getPlayer();
+        if (player == null){
+            context.getSource().sendFailure(Component.literal("This command must be run by a player"));
+            return 0;
+        }
+        if(!EconomyModule.isCCPresent()){
+            context.getSource().sendFailure(Component.literal("This feature requires CC:Tweaked"));
+            return 0;
+        }
+        var uuid = player.getUUID();
+        LicenseManager.invalidateKey(LicenseManager.getKey(uuid));
+        context.getSource().sendSuccess(() ->module.locale().get("licenseRevoke"),false);
+        return 1;
+    }
+
+    private int executeLicenseRegister(CommandContext<CommandSourceStack> context) {
+        ServerPlayer player = context.getSource().getPlayer();
+        if (player == null){
+            context.getSource().sendFailure(Component.literal("This command must be run by a player"));
+            return 0;
+        }
+        if(!EconomyModule.isCCPresent()){
+            context.getSource().sendFailure(Component.literal("This feature requires CC:Tweaked"));
+            return 0;
+        }
+        var uuid = player.getUUID();
+        var key = LicenseManager.createLicense(uuid);
+        Map<String,Component> map = Map.of(
+                "key",Component.literal(key.toString())
+        );
+        context.getSource().sendSuccess(()-> module.locale().get("licenseKey",map),false);
+        return 1;
+    }
+
+    private int executeLicenseReminder(CommandContext<CommandSourceStack> context){
+        ServerPlayer player = context.getSource().getPlayer();
+        if (player == null){
+            context.getSource().sendFailure(Component.literal("This command must be run by a player"));
+            return 0;
+        }
+        if(!EconomyModule.isCCPresent()){
+            context.getSource().sendFailure(Component.literal("This feature requires CC:Tweaked"));
+            return 0;
+        }
+        var uuid = player.getUUID();
+        var key = LicenseManager.getKey(uuid);
+        if (key == null) {
+            context.getSource().sendFailure(Component.literal("You do not have a license key, use /eco license register"));
+            return 0;
+        }
+        Map<String,Component> map = Map.of(
+                "key",Component.literal(key.toString())
+        );
+        context.getSource().sendSuccess(()-> module.locale().get("licenseKey",map),false);
+        return 1;
+    }
     private int executeAdd(CommandContext<CommandSourceStack> context, GameProfile player, long amount) {
         addCurrency(player.getId(),amount);
         Map<String, Component> map = Map.of(

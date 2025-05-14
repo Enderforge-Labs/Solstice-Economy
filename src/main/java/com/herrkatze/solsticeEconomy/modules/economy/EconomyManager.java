@@ -1,6 +1,9 @@
 package com.herrkatze.solsticeEconomy.modules.economy;
 
+import com.herrkatze.solsticeEconomy.SolsticeEconomy;
 import com.herrkatze.solsticeEconomy.modules.economy.data.EconomyPlayerData;
+import com.herrkatze.solsticeEconomy.modules.economy.data.EconomyServerData;
+import com.herrkatze.solsticeEconomy.modules.economy.integration.computercraft.CCEvents;
 import me.alexdevs.solstice.Solstice;
 
 import java.util.UUID;
@@ -18,6 +21,9 @@ public class EconomyManager {
     private static boolean modifyCurrency(UUID player,long deltaBalance) {
         EconomyPlayerData data =  Solstice.playerData.get(player).getData(EconomyPlayerData.class);
         data.balance += deltaBalance;
+        if(EconomyModule.isCCPresent()) {
+            CCEvents.fireEvent(player,"balance_change",(double) data.balance / 100d,(double) deltaBalance/100d,CurrencyRenderer.renderCurrency(data.balance).getString(),CurrencyRenderer.renderCurrency(deltaBalance).getString());
+        }
         return true;
     }
 

@@ -22,5 +22,9 @@
     "fabricloader": ">=${loader_version}",
     "minecraft": "${minecraft_version}",
     "solstice": ">=1.7.0+1.20.1-alpha-1"
+  },
+  "suggests": {
+    "computercraft": "1.105.0"
+
   }
 }
