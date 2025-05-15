@@ -27,6 +27,13 @@ public class PlayerBalanceNotifications {
         );
         return new Notification(module.locale().get("genericReceive",map));
     }
+    public static Notification EarningNotification(long amount) {
+        var module = getModule();
+        Map<String,Component> map = Map.of(
+                "amount", renderCurrency(amount)
+        );
+        return new Notification(module.locale().get("timedReceive",map));
+    }
     public static Notification RefundNotification(long amount) {
         var module = getModule();
         Map<String,Component> map = Map.of(
