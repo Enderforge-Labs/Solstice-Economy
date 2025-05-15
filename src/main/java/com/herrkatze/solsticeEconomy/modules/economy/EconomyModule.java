@@ -38,7 +38,9 @@ public class EconomyModule extends ModuleBase.Toggleable {
         commands.add(new BalanceCommand(this));
         commands.add(new PayCommand(this));
         SolsticeEvents.READY.register((instance, server)-> {
-            Solstice.scheduler.scheduleAtFixedRate(this::calculatePayment,0, getConfig().autoPayInterval, TimeUnit.SECONDS);
+            if(getConfig().autoPayInterval != 0 && getConfig().autoPayAmount != 0) { // if either config value is set to 0, disable the feature entirely. no need for a separate toggle
+                Solstice.scheduler.scheduleAtFixedRate(this::calculatePayment, 0, getConfig().autoPayInterval, TimeUnit.SECONDS);
+            }
         });
         var hasCC = isCCPresent();
         if (hasCC){
