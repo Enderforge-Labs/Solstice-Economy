@@ -63,7 +63,7 @@ public class EconomyModule extends ModuleBase.Toggleable {
             double relativeDeltaActiveTime = deltaActiveTime / interval; // make it 1 if equal to interval, or greater if they log off and rejoin mid-interval
             long balance = (long) (amount * relativeDeltaActiveTime);
             if(EconomyModule.isCCPresent()) {
-                CCEvents.fireEvent(player.getUUID(),"balance_change",(double) playerData.balance / 100d,(double) balance/100d,CurrencyRenderer.renderCurrency(playerData.balance).getString(),CurrencyRenderer.renderCurrency(balance).getString());
+                CCEvents.fireEvent(player.getUUID(),"timed_earnings",(double) playerData.balance / 100d,(double) balance/100d,CurrencyRenderer.renderCurrency(playerData.balance).getString(),CurrencyRenderer.renderCurrency(balance).getString());
             }
             EconomyManager.addCurrency(player.getUUID(),balance);
             NotificationManager.sendNotification(PlayerBalanceNotifications.EarningNotification(balance),player);
