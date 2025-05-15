@@ -1,10 +1,7 @@
 package com.herrkatze.solsticeEconomy.modules.economy.integration.computercraft;
 
 import com.herrkatze.solsticeEconomy.SolsticeEconomy;
-import com.herrkatze.solsticeEconomy.modules.economy.CurrencyParser;
-import com.herrkatze.solsticeEconomy.modules.economy.CurrencyRenderer;
-import com.herrkatze.solsticeEconomy.modules.economy.EconomyManager;
-import com.herrkatze.solsticeEconomy.modules.economy.EconomyModule;
+import com.herrkatze.solsticeEconomy.modules.economy.*;
 import com.mojang.authlib.GameProfile;
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
@@ -56,6 +53,8 @@ public class CCWallet {
             var targetProfile = target.get();
             CCEvents.fireEvent(targetUUID,"computer_transfer",targetProfile.getName(),(double) EconomyManager.getCurrency(targetUUID) / 100d,(double) realAmount/100d,CurrencyRenderer.renderCurrency(EconomyManager.getCurrency(targetUUID)).getString(),CurrencyRenderer.renderCurrency(realAmount).getString());
         }
+        var playerEntity = Solstice.server.getPlayerList().getPlayer(targetUUID);
+        NotificationManager.sendNotification(PlayerBalanceNotifications.ReceiveNotification(realAmount),playerEntity);
         return MethodResult.of(EconomyManager.transferCurrency(ownerUUID,targetUUID,realAmount));
     }
     @LuaFunction
@@ -72,6 +71,55 @@ public class CCWallet {
         else {
             return MethodResult.of(false,"Player does not exist");
         }
+        if(EconomyModule.isCCPresent()) {
+            var targetProfile = target.get();
+            CCEvents.fireEvent(targetUUID,"computer_transfer",targetProfile.getName(),(double) EconomyManager.getCurrency(targetUUID) / 100d,(double) realAmount/100d,CurrencyRenderer.renderCurrency(EconomyManager.getCurrency(targetUUID)).getString(),CurrencyRenderer.renderCurrency(realAmount).getString());
+        }
+        var playerEntity = Solstice.server.getPlayerList().getPlayer(targetUUID);
+        NotificationManager.sendNotification(PlayerBalanceNotifications.ReceiveNotification(realAmount),playerEntity);
+        return MethodResult.of(EconomyManager.transferCurrency(ownerUUID,targetUUID,realAmount));
+    } @LuaFunction
+    public final MethodResult refund(IArguments arguments) throws LuaException {
+        var ownerUUID = LicenseManager.getOwner(this.pkey);
+        var player = arguments.getString(0);
+        double amount = arguments.getDouble(1);
+        long realAmount = (long) (amount * 100);
+        UUID targetUUID;
+        var target = Solstice.getUserCache().getByName(player);
+        if (target.isPresent()) {
+            targetUUID = target.get().getId();
+        }
+        else {
+            return MethodResult.of(false,"Player does not exist");
+        }
+        if(EconomyModule.isCCPresent()) {
+            var targetProfile = target.get();
+            CCEvents.fireEvent(targetUUID,"computer_refund",targetProfile.getName(),(double) EconomyManager.getCurrency(targetUUID) / 100d,(double) realAmount/100d,CurrencyRenderer.renderCurrency(EconomyManager.getCurrency(targetUUID)).getString(),CurrencyRenderer.renderCurrency(realAmount).getString());
+        }
+        var playerEntity = Solstice.server.getPlayerList().getPlayer(targetUUID);
+        NotificationManager.sendNotification(PlayerBalanceNotifications.RefundNotification(realAmount),playerEntity);
+        return MethodResult.of(EconomyManager.transferCurrency(ownerUUID,targetUUID,realAmount));
+    }
+    @LuaFunction
+    public final MethodResult refundString(IArguments arguments) throws LuaException {
+        var ownerUUID = LicenseManager.getOwner(this.pkey);
+        var player = arguments.getString(0);
+        var amount = arguments.getString(1);
+        long realAmount = CurrencyParser.parseCents(amount);
+        UUID targetUUID;
+        var target = Solstice.getUserCache().getByName(player);
+        if (target.isPresent()) {
+            targetUUID = target.get().getId();
+        }
+        else {
+            return MethodResult.of(false,"Player does not exist");
+        }
+        if(EconomyModule.isCCPresent()) {
+            var targetProfile = target.get();
+            CCEvents.fireEvent(targetUUID,"computer_refund",targetProfile.getName(),(double) EconomyManager.getCurrency(targetUUID) / 100d,(double) realAmount/100d,CurrencyRenderer.renderCurrency(EconomyManager.getCurrency(targetUUID)).getString(),CurrencyRenderer.renderCurrency(realAmount).getString());
+        }
+        var playerEntity = Solstice.server.getPlayerList().getPlayer(targetUUID);
+        NotificationManager.sendNotification(PlayerBalanceNotifications.RefundNotification(realAmount),playerEntity);
         return MethodResult.of(EconomyManager.transferCurrency(ownerUUID,targetUUID,realAmount));
     }
 }
