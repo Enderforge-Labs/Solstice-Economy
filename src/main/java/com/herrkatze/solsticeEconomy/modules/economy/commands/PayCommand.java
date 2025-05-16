@@ -16,6 +16,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -39,14 +41,25 @@ public class PayCommand extends ModCommand<EconomyModule> {
             .then(Commands.argument("player", StringArgumentType.word())
                 .suggests(LocalGameProfile::suggest)
                 .then(Commands.argument("amount", StringArgumentType.word())
+                        .then(Commands.argument("metadata",StringArgumentType.greedyString())
+                                .executes(
+                                        context -> executePay(
+                                                context,
+                                                LocalGameProfile.getProfile(context,"player"),
+                                                CurrencyParser.getCentsArgument(context,"amount"),
+                                                StringArgumentType.getString(context,"metadata")
+                                        )
+                                ))
                     .executes(context -> executePay(
                             context,
                             LocalGameProfile.getProfile(context,"player"),
-                            CurrencyParser.getCentsArgument(context,"amount")
+                            CurrencyParser.getCentsArgument(context,"amount"),
+                            null // I have to put this here because Java sucks
                     )))
+
         );
     }
-    private int executePay(CommandContext<CommandSourceStack> context, GameProfile player2, long amount) {
+    private int executePay(CommandContext<CommandSourceStack> context, GameProfile player2, long amount, @Nullable String metadata) {
         ServerPlayer player1 = context.getSource().getPlayer();
         if (player1 == null) {
             context.getSource().sendFailure(Component.literal("This command must be ran by a player"));
@@ -71,7 +84,7 @@ public class PayCommand extends ModCommand<EconomyModule> {
             return 0;
         }
         if(EconomyModule.isCCPresent()) {
-            CCEvents.fireEvent(player2.getId(),"player_pay",player1.getName().getString(),(double) EconomyManager.getCurrency(player2.getId()) / 100d,(double) amount/100d,CurrencyRenderer.renderCurrency(EconomyManager.getCurrency(player2.getId())).getString(),CurrencyRenderer.renderCurrency(amount).getString());
+            CCEvents.fireEvent(player2.getId(),"player_pay",player1.getName().getString(),(double) EconomyManager.getCurrency(player2.getId()) / 100d,(double) amount/100d,CurrencyRenderer.renderCurrency(EconomyManager.getCurrency(player2.getId())).getString(),CurrencyRenderer.renderCurrency(amount).getString(),metadata);
         }
         Map<String,Component> map = Map.of(
                 "player", Component.literal(player2.getName()),
