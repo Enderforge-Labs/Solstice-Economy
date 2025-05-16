@@ -49,13 +49,14 @@ public class CCWallet {
         else {
             return MethodResult.of(false,"Player does not exist");
         }
-        if(EconomyModule.isCCPresent()) {
+        boolean success = EconomyManager.transferCurrency(ownerUUID,targetUUID,realAmount);
+        if(EconomyModule.isCCPresent() && success) {
             var targetProfile = target.get();
             CCEvents.fireEvent(targetUUID,"computer_transfer",targetProfile.getName(),(double) EconomyManager.getCurrency(targetUUID) / 100d,(double) realAmount/100d,CurrencyRenderer.renderCurrency(EconomyManager.getCurrency(targetUUID)).getString(),CurrencyRenderer.renderCurrency(realAmount).getString());
         }
         var playerEntity = Solstice.server.getPlayerList().getPlayer(targetUUID);
         NotificationManager.sendNotification(PlayerBalanceNotifications.ReceiveNotification(realAmount),playerEntity);
-        return MethodResult.of(EconomyManager.transferCurrency(ownerUUID,targetUUID,realAmount));
+        return MethodResult.of(success);
     }
     @LuaFunction
     public final MethodResult transferString(IArguments arguments) throws LuaException {
@@ -71,13 +72,14 @@ public class CCWallet {
         else {
             return MethodResult.of(false,"Player does not exist");
         }
-        if(EconomyModule.isCCPresent()) {
+        boolean success = EconomyManager.transferCurrency(ownerUUID,targetUUID,realAmount);
+        if(EconomyModule.isCCPresent() && success) {
             var targetProfile = target.get();
             CCEvents.fireEvent(targetUUID,"computer_transfer",targetProfile.getName(),(double) EconomyManager.getCurrency(targetUUID) / 100d,(double) realAmount/100d,CurrencyRenderer.renderCurrency(EconomyManager.getCurrency(targetUUID)).getString(),CurrencyRenderer.renderCurrency(realAmount).getString());
         }
         var playerEntity = Solstice.server.getPlayerList().getPlayer(targetUUID);
         NotificationManager.sendNotification(PlayerBalanceNotifications.ReceiveNotification(realAmount),playerEntity);
-        return MethodResult.of(EconomyManager.transferCurrency(ownerUUID,targetUUID,realAmount));
+        return MethodResult.of(success);
     } @LuaFunction
     public final MethodResult refund(IArguments arguments) throws LuaException {
         var ownerUUID = LicenseManager.getOwner(this.pkey);
@@ -92,13 +94,14 @@ public class CCWallet {
         else {
             return MethodResult.of(false,"Player does not exist");
         }
-        if(EconomyModule.isCCPresent()) {
+        boolean success = EconomyManager.transferCurrency(ownerUUID,targetUUID,realAmount);
+        if(EconomyModule.isCCPresent() && success) {
             var targetProfile = target.get();
             CCEvents.fireEvent(targetUUID,"computer_refund",targetProfile.getName(),(double) EconomyManager.getCurrency(targetUUID) / 100d,(double) realAmount/100d,CurrencyRenderer.renderCurrency(EconomyManager.getCurrency(targetUUID)).getString(),CurrencyRenderer.renderCurrency(realAmount).getString());
         }
         var playerEntity = Solstice.server.getPlayerList().getPlayer(targetUUID);
         NotificationManager.sendNotification(PlayerBalanceNotifications.RefundNotification(realAmount),playerEntity);
-        return MethodResult.of(EconomyManager.transferCurrency(ownerUUID,targetUUID,realAmount));
+        return MethodResult.of(success);
     }
     @LuaFunction
     public final MethodResult refundString(IArguments arguments) throws LuaException {
@@ -114,12 +117,13 @@ public class CCWallet {
         else {
             return MethodResult.of(false,"Player does not exist");
         }
-        if(EconomyModule.isCCPresent()) {
+        boolean success = EconomyManager.transferCurrency(ownerUUID,targetUUID,realAmount);
+        if(EconomyModule.isCCPresent() && success) {
             var targetProfile = target.get();
             CCEvents.fireEvent(targetUUID,"computer_refund",targetProfile.getName(),(double) EconomyManager.getCurrency(targetUUID) / 100d,(double) realAmount/100d,CurrencyRenderer.renderCurrency(EconomyManager.getCurrency(targetUUID)).getString(),CurrencyRenderer.renderCurrency(realAmount).getString());
         }
         var playerEntity = Solstice.server.getPlayerList().getPlayer(targetUUID);
         NotificationManager.sendNotification(PlayerBalanceNotifications.RefundNotification(realAmount),playerEntity);
-        return MethodResult.of(EconomyManager.transferCurrency(ownerUUID,targetUUID,realAmount));
+        return MethodResult.of(success);
     }
 }
