@@ -62,10 +62,10 @@ public class EconomyModule extends ModuleBase.Toggleable {
             double deltaActiveTime = activeTime - oldActiveTime; // double can hold a 32 bit int just fine, it's needed to get accurate data
             double relativeDeltaActiveTime = deltaActiveTime / interval; // make it 1 if equal to interval, or greater if they log off and rejoin mid-interval
             long balance = (long) (amount * relativeDeltaActiveTime);
-            if(EconomyModule.isCCPresent()) {
+            boolean success = EconomyManager.addCurrency(player.getUUID(),balance);
+            if(EconomyModule.isCCPresent() && success) {
                 CCEvents.fireEvent(player.getUUID(),"timed_earnings",(double) playerData.balance / 100d,(double) balance/100d,CurrencyRenderer.renderCurrency(playerData.balance).getString(),CurrencyRenderer.renderCurrency(balance).getString());
             }
-            EconomyManager.addCurrency(player.getUUID(),balance);
             NotificationManager.sendNotification(PlayerBalanceNotifications.EarningNotification(balance),player);
             playerData.oldActiveTime = activeTime;
         }
