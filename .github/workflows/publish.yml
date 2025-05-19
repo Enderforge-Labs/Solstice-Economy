@@ -1,0 +1,62 @@
+name: Publish on GitHub, CurseForge & Modrinth
+
+on: [ workflow_dispatch ]
+
+env:
+  MINECRAFT_VERSION: 1.21.1
+  JAVA_VERSION: 21
+  VERSION: 1.8.1+1.21.1
+  RELEASE_NAME: Solstice 1.8.1 for Minecraft 1.21.1
+  MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+  CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+  MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+  MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Environment Variables
+        run: env
+
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: "temurin"
+          java-version: 21
+
+      - name: Make Gradle Wrapper Executable
+        if: ${{ runner.os != 'Windows' }}
+        run: chmod +x ./gradlew
+
+      - name: Build
+        run: ./gradlew clean build
+
+      - name: Publish to Maven
+        run: ./gradlew publish
+
+      - name: Publish
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: DvOrFxes
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+
+          github-tag: "v${{env.VERSION}}"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+          name: "${{env.RELEASE_NAME}}"
+          version: "${{env.VERSION}}"
+          version-type: release
+          changelog-file: CHANGELOG.md
+
+          loaders: fabric
+          game-versions: "${{env.MINECRAFT_VERSION}}"
+          java: "${{env.JAVA_VERSION}}"
