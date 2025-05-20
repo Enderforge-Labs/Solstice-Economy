@@ -3,10 +3,10 @@ name: Publish on GitHub & Modrinth
 on: [ workflow_dispatch ]
 
 env:
-  MINECRAFT_VERSION: 1.21.1
+  MINECRAFT_VERSION: 1.20.1
   JAVA_VERSION: 21
-  VERSION: 1.8.1+1.21.1
-  RELEASE_NAME: Solstice 1.8.1 for Minecraft 1.21.1
+  VERSION: 0.2.2
+  RELEASE_NAME: 0.2.2
   MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
   CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
   MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
