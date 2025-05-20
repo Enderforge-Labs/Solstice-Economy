@@ -36,7 +36,7 @@ public class EconomyManager {
         if(amount <=0){
             return false;
         }
-        return modifyCurrency(player,amount);
+        return modifyCurrency(player,-amount);
     }
     public static boolean transferCurrency(UUID player1,UUID player2,long amount){
         // Transfer <amount> currency from player1 to player2
