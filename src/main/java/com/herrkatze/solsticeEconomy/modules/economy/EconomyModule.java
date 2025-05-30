@@ -67,7 +67,9 @@ public class EconomyModule extends ModuleBase.Toggleable {
                 if (EconomyModule.isCCPresent() && success) {
                     CCEvents.fireEvent(player.getUUID(), "timed_earnings", (double) playerData.balance / 100d, (double) balance / 100d, CurrencyRenderer.renderCurrency(playerData.balance).getString(), CurrencyRenderer.renderCurrency(balance).getString());
                 }
-                NotificationManager.sendNotification(PlayerBalanceNotifications.EarningNotification(balance), player);
+                if (success) {
+                    NotificationManager.sendNotification(PlayerBalanceNotifications.EarningNotification(balance), player);
+                }
             }
             playerData.oldActiveTime = activeTime;
         }
