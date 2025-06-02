@@ -1,3 +1,3 @@
-# 0.2.2
-fix: subtractCurrency not actually subtracting  
-Update Solstice to 1.8.1
+# 0.2.3
+fix: $0 notification appearing from timed earnings
+fix: Earning notification happening if earning fails
