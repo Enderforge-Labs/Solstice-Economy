@@ -1,12 +1,12 @@
 name: Publish on GitHub & Modrinth
 
-on: [ workflow_dispatch ]
+on: [workflow_dispatch]
 
 env:
   MINECRAFT_VERSION: 1.20.1
   JAVA_VERSION: 21
-  VERSION: 0.2.2
-  RELEASE_NAME: Solstice Economy 0.2.2
+  VERSION: 0.3.0
+  RELEASE_NAME: Solstice Economy 0.3.0
   MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
   CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
   MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
@@ -19,44 +19,44 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Check Environment Variables
-        run: env
+    - name: Check Environment Variables
+      run: env
 
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-        with:
-          submodules: true
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+      with:
+        submodules: true
 
-      - name: Setup Java
-        uses: actions/setup-java@v2
-        with:
-          distribution: "temurin"
-          java-version: 21
+    - name: Setup Java
+      uses: actions/setup-java@v2
+      with:
+        distribution: temurin
+        java-version: 21
 
-      - name: Make Gradle Wrapper Executable
-        if: ${{ runner.os != 'Windows' }}
-        run: chmod +x ./gradlew
+    - name: Make Gradle Wrapper Executable
+      if: ${{ runner.os != 'Windows' }}
+      run: chmod +x ./gradlew
 
-      - name: Build
-        run: ./gradlew clean build
+    - name: Build
+      run: ./gradlew clean build
 
-#      - name: Publish to Maven
-#        run: ./gradlew publish
+      #      - name: Publish to Maven
+      #        run: ./gradlew publish
 
-      - name: Publish
-        uses: Kir-Antipov/mc-publish@v3.3
-        with:
-          modrinth-id: DvOrFxes
-          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+    - name: Publish
+      uses: Kir-Antipov/mc-publish@v3.3
+      with:
+        modrinth-id: DvOrFxes
+        modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
 
-          github-tag: "v${{env.VERSION}}"
-          github-token: ${{ secrets.GH_TOKEN }}
+        github-tag: v${{env.VERSION}}
+        github-token: ${{ secrets.GH_TOKEN }}
 
-          name: "${{env.RELEASE_NAME}}"
-          version: "${{env.VERSION}}"
-          version-type: beta
-          changelog-file: CHANGELOG.md
+        name: ${{env.RELEASE_NAME}}
+        version: ${{env.VERSION}}
+        version-type: beta
+        changelog-file: CHANGELOG.md
 
-          loaders: fabric
-          game-versions: "${{env.MINECRAFT_VERSION}}"
-          java: "${{env.JAVA_VERSION}}"
+        loaders: fabric
+        game-versions: ${{env.MINECRAFT_VERSION}}
+        java: ${{env.JAVA_VERSION}}
