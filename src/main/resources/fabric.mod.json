@@ -30,7 +30,7 @@
   },
   "custom": {
     "mc-publish": [
-      "solstice@1.8.1+1.20.1(required){modrinth:solstice-essentials}"
+      "solstice@1.8.1+1.20.1-alpha-1(required){modrinth:solstice-essentials}"
     ]
   }
 }

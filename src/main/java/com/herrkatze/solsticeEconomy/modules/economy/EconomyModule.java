@@ -13,8 +13,12 @@ import me.alexdevs.solstice.Solstice;
 import me.alexdevs.solstice.api.events.SolsticeEvents;
 import me.alexdevs.solstice.api.module.ModuleBase;
 import me.alexdevs.solstice.modules.afk.AfkModule;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -22,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 public class EconomyModule extends ModuleBase.Toggleable {
     public static final String ID = "economy";
-
+    private static boolean wasAutoPayEnabled = false;
     public EconomyModule() {
         super(ID);
     }
@@ -39,8 +43,20 @@ public class EconomyModule extends ModuleBase.Toggleable {
         commands.add(new PayCommand(this));
         SolsticeEvents.READY.register((instance, server)-> {
             if(getConfig().autoPayInterval != 0 && getConfig().autoPayAmount != 0) { // if either config value is set to 0, disable the feature entirely. no need for a separate toggle
+                wasAutoPayEnabled = true;
                 Solstice.scheduler.scheduleAtFixedRate(this::calculatePayment, 0, getConfig().autoPayInterval, TimeUnit.SECONDS);
             }
+        });
+        SolsticeEvents.RELOAD.register((instance -> {
+            if(getConfig().autoPayInterval != 0 && getConfig().autoPayAmount != 0 && !wasAutoPayEnabled) { // Start the scheduled payments on config reload
+                wasAutoPayEnabled = true;
+                Solstice.scheduler.scheduleAtFixedRate(this::calculatePayment, 0, getConfig().autoPayInterval, TimeUnit.SECONDS);
+            }
+        }));
+        ServerPlayConnectionEvents.JOIN.register((serverGamePacketListener, packetSender, minecraftServer) ->{
+            var config = getConfig();
+            var player = serverGamePacketListener.getPlayer();
+            calculatePaymentForPlayer(player, config.autoPayInterval, config.autoPayAmount);
         });
         var hasCC = isCCPresent();
         if (hasCC){
@@ -56,24 +72,32 @@ public class EconomyModule extends ModuleBase.Toggleable {
         var interval = config.autoPayInterval;
         var amount = config.autoPayAmount;
         for (ServerPlayer player:players) {
-            var playerData = getPlayer(player.getUUID());
-            var activeTime = Solstice.modules.getModule(AfkModule.class).getActiveTime(player.getUUID());
-            var oldActiveTime = playerData.oldActiveTime;
-            double deltaActiveTime = activeTime - oldActiveTime; // double can hold a 32 bit int just fine, it's needed to get accurate data
-            double relativeDeltaActiveTime = deltaActiveTime / interval; // make it 1 if equal to interval, or greater if they log off and rejoin mid-interval
-            long balance = (long) (amount * relativeDeltaActiveTime);
-            if (balance != 0){ // Prevent "You Have earned $0 from playing" messages
-                boolean success = EconomyManager.addCurrency(player.getUUID(), balance);
-                if (EconomyModule.isCCPresent() && success) {
-                    CCEvents.fireEvent(player.getUUID(), "timed_earnings", (double) playerData.balance / 100d, (double) balance / 100d, CurrencyRenderer.renderCurrency(playerData.balance).getString(), CurrencyRenderer.renderCurrency(balance).getString());
-                }
-                if (success) {
-                    NotificationManager.sendNotification(PlayerBalanceNotifications.EarningNotification(balance), player);
-                }
-            }
-            playerData.oldActiveTime = activeTime;
+            calculatePaymentForPlayer(player, interval, amount);
         }
     }
+
+    private void calculatePaymentForPlayer(ServerPlayer player, int interval, int amount) {
+        if (interval == 0 || amount == 0) {
+            return; // Both of these disable the feature so don't bother
+        }
+        var playerData = getPlayer(player.getUUID());
+        var activeTime = Solstice.modules.getModule(AfkModule.class).getActiveTime(player.getUUID());
+        var oldActiveTime = playerData.oldActiveTime;
+        double deltaActiveTime = activeTime - oldActiveTime; // double can hold a 32 bit int just fine, it's needed to get accurate data
+        double relativeDeltaActiveTime = deltaActiveTime / interval; // make it 1 if equal to interval, or greater if they log off and rejoin mid-interval
+        long balance = (long) (amount * relativeDeltaActiveTime);
+        if (balance != 0){ // Prevent "You Have earned $0 from playing" messages
+            boolean success = EconomyManager.addCurrency(player.getUUID(), balance);
+            if (EconomyModule.isCCPresent() && success) {
+                CCEvents.fireEvent(player.getUUID(), "timed_earnings", (double) playerData.balance / 100d, (double) balance / 100d, CurrencyRenderer.renderCurrency(playerData.balance).getString(), CurrencyRenderer.renderCurrency(balance).getString());
+            }
+            if (success) {
+                NotificationManager.sendNotification(PlayerBalanceNotifications.EarningNotification(balance), player);
+            }
+        }
+        playerData.oldActiveTime = activeTime;
+    }
+
     public static boolean isCCPresent() {
         var optContainer = FabricLoader.getInstance().getModContainer("computercraft");
         return optContainer.isPresent();
