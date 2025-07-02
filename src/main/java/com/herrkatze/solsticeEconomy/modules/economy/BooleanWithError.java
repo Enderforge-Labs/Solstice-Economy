@@ -3,7 +3,7 @@ package com.herrkatze.solsticeEconomy.modules.economy;
 import org.jetbrains.annotations.Nullable;
 
 public class BooleanWithError {
-    private boolean status;
+    private final boolean status;
     private String error = null;
     public boolean get(){
         return this.status;
