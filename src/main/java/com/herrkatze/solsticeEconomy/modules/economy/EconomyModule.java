@@ -56,6 +56,10 @@ public class EconomyModule extends ModuleBase.Toggleable {
         ServerPlayConnectionEvents.JOIN.register((serverGamePacketListener, packetSender, minecraftServer) ->{
             var config = getConfig();
             var player = serverGamePacketListener.getPlayer();
+            var data = getPlayer(player.getUUID());
+            if (data.wallet == null) {
+                data.wallet = new PlayerWallet(data.balance); // Create new wallet for player, populating old balance
+            }
             calculatePaymentForPlayer(player, config.autoPayInterval, config.autoPayAmount);
         });
         var hasCC = isCCPresent();
@@ -87,7 +91,7 @@ public class EconomyModule extends ModuleBase.Toggleable {
         double relativeDeltaActiveTime = deltaActiveTime / interval; // make it 1 if equal to interval, or greater if they log off and rejoin mid-interval
         long balance = (long) (amount * relativeDeltaActiveTime);
         if (balance != 0){ // Prevent "You Have earned $0 from playing" messages
-            boolean success = EconomyManager.addCurrency(player.getUUID(), balance);
+            boolean success = EconomyManager.addCurrency(player.getUUID(), balance).get();
             if (EconomyModule.isCCPresent() && success) {
                 CCEvents.fireEvent(player.getUUID(), "timed_earnings", (double) playerData.balance / 100d, (double) balance / 100d, CurrencyRenderer.renderCurrency(playerData.balance).getString(), CurrencyRenderer.renderCurrency(balance).getString());
             }

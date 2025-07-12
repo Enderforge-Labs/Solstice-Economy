@@ -12,47 +12,24 @@ import java.util.UUID;
 
 
 public class EconomyManager {
-    public static boolean addCurrency(UUID player,long amount){
-        if(amount <=0){
-            return false;
-        }
-        return modifyCurrency(player,amount);
+    private static EconomyPlayerData getPlayer(UUID uuid) {
+        return Solstice.playerData.get(uuid).getData(EconomyPlayerData.class);
     }
-    private static boolean modifyCurrency(UUID player,long deltaBalance) {
-        EconomyPlayerData data =  Solstice.playerData.get(player).getData(EconomyPlayerData.class);
-        data.balance += deltaBalance;
-        if(EconomyModule.isCCPresent()) {
-            CCEvents.fireEvent(player,"balance_change",(double) data.balance / 100d,(double) deltaBalance/100d,CurrencyRenderer.renderCurrency(data.balance).getString(),CurrencyRenderer.renderCurrency(deltaBalance).getString());
-        }
-        return true;
+    public static BooleanWithError addCurrency(UUID player,long amount){
+        return getPlayer(player).wallet.addBalance(amount);
     }
 
-    public static boolean setCurrency(UUID player,long amount){
-        EconomyPlayerData data =  Solstice.playerData.get(player).getData(EconomyPlayerData.class);
-        data.balance = amount;
-        return true;
+    public static void setCurrency(UUID player,long amount){
+        getPlayer(player).wallet.setBalance(amount);
     }
-    public static boolean subtractCurrency(UUID player,long amount){
-        if(amount <=0){
-            return false;
-        }
-        return modifyCurrency(player,-amount);
+    public static BooleanWithError subtractCurrency(UUID player,long amount){
+        return getPlayer(player).wallet.subtractBalance(amount);
     }
-    public static boolean transferCurrency(UUID player1,UUID player2,long amount){
-        // Transfer <amount> currency from player1 to player2
-        if(amount <= 0) {
-            return false; // Can't transfer a negative balance for safety against exploits
-        }
-        long player1Balance = getCurrency(player1);
-        if (player1Balance < amount) {
-            return false;
-        }
-        subtractCurrency(player1,amount);
-        addCurrency(player2,amount);
-        return true;
+    public static BooleanWithError transferCurrency(UUID player1,UUID player2,long amount){
+        return getPlayer(player1).wallet.transfer(getPlayer(player2).wallet,amount);
     }
     public static long getCurrency(UUID player) {
-        return Solstice.playerData.get(player).getData(EconomyPlayerData.class).balance;
+        return Solstice.playerData.get(player).getData(EconomyPlayerData.class).wallet.getBalance();
     }
 
 }

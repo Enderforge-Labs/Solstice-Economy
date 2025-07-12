@@ -11,6 +11,7 @@ public class EconomyLocale {
             Map.entry("payReceived","<green>${sender} paid you <gold>$${amount}</gold></green>"),
             Map.entry("lowBalance","<red>Not enough balance.</red>"),
             Map.entry("unknownError","<red>An unknown error occurred in the transaction.</red>"),
+            Map.entry("error","<red>An error occurred: $${error}"),
             Map.entry("balance","<green>Balance: <gold>$${balance}</gold></green>"),
             Map.entry("balanceOthers","<green>${player}'s Balance: <gold>$${balance}</gold></green>"),
             Map.entry("currencyAddNotification","<green><gold>$${amount}</gold> was added to your balance by an admin</green>"),

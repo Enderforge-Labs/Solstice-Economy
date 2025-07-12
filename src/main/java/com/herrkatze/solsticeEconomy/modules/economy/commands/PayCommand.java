@@ -79,8 +79,9 @@ public class PayCommand extends ModCommand<EconomyModule> {
             context.getSource().sendFailure(module.locale().get("lowBalance"));
             return 0;
         }
-        if (!EconomyManager.transferCurrency(player1UUID,player2.getId(),amount)) {
-            context.getSource().sendFailure(module.locale().get("unknownError"));
+        var success = EconomyManager.transferCurrency(player1UUID,player2.getId(),amount);
+        if (!success.get()) {
+            context.getSource().sendFailure(module.locale().get("error",Map.of("error",Component.literal(success.getError()))));
             return 0;
         }
         if(EconomyModule.isCCPresent()) {

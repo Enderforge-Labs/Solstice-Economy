@@ -8,6 +8,12 @@ public class PlayerWallet implements IWallet{
     public long getBalance() {
         return balance;
     }
+    public PlayerWallet(long balance){
+        this.balance = balance;
+    }
+    public PlayerWallet(){
+        this.balance = 0;
+    }
 
     @Override
     public @NotNull BooleanWithError transfer(IWallet wallet, long amount) {
