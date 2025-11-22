@@ -1,5 +1,6 @@
 package com.herrkatze.solsticeEconomy.modules.economy;
 
+import com.snek.frameworklib.utils.Result;
 import org.jetbrains.annotations.NotNull;
 
 public class PlayerWallet implements IWallet{
@@ -16,36 +17,36 @@ public class PlayerWallet implements IWallet{
     }
 
     @Override
-    public @NotNull BooleanWithError transfer(IWallet wallet, long amount) {
+    public @NotNull Result<Boolean,String> transfer(IWallet wallet, long amount) {
         if (amount <= 0) {
-            return new BooleanWithError(false,"amount must be a positibe nonzero long value");
+            return Result.Err("amount must be a positive nonzero long value");
         }
         if (balance < amount) {
-            return new BooleanWithError(false,"Not Enough Balance");
+            return Result.Err("Not Enough Balance");
         }
         var success = wallet.addBalance(amount);
-        if (success.get()) {
+        if (success.is_ok()) {
             subtractBalance(amount);
         }
         return success;
     }
 
     @Override
-    public @NotNull BooleanWithError addBalance(long amount) {
+    public @NotNull Result<Boolean, String> addBalance(long amount) {
         if(amount <=0) {
-            return new BooleanWithError(false,"amount must be a positive nonzero long value");
+            return Result.Err("amount must be a positive nonzero long value");
         }
         this.balance += amount;
-        return new BooleanWithError(true);
+        return Result.Ok(true);
     }
 
     @Override
-    public @NotNull BooleanWithError subtractBalance(long amount) {
+    public @NotNull Result<Boolean, String> subtractBalance(long amount) {
         if(amount <=0) {
-            return new BooleanWithError(false,"amount must be a positive nonzero long value");
+            return Result.Err("amount must be a positive nonzero long value");
         }
         this.balance -= amount;
-        return new BooleanWithError(true);
+        return Result.Ok(true);
     }
 
     @Override

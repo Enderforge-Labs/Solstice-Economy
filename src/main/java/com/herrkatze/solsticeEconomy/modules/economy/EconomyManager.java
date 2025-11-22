@@ -4,6 +4,7 @@ import com.herrkatze.solsticeEconomy.SolsticeEconomy;
 import com.herrkatze.solsticeEconomy.modules.economy.data.EconomyPlayerData;
 import com.herrkatze.solsticeEconomy.modules.economy.data.EconomyServerData;
 import com.herrkatze.solsticeEconomy.modules.economy.integration.computercraft.CCEvents;
+import com.snek.frameworklib.utils.Result;
 import me.alexdevs.solstice.Solstice;
 
 import java.util.UUID;
@@ -15,17 +16,17 @@ public class EconomyManager {
     private static EconomyPlayerData getPlayer(UUID uuid) {
         return Solstice.playerData.get(uuid).getData(EconomyPlayerData.class);
     }
-    public static BooleanWithError addCurrency(UUID player,long amount){
+    public static Result<Boolean, String> addCurrency(UUID player, long amount){
         return getPlayer(player).wallet.addBalance(amount);
     }
 
     public static void setCurrency(UUID player,long amount){
         getPlayer(player).wallet.setBalance(amount);
     }
-    public static BooleanWithError subtractCurrency(UUID player,long amount){
+    public static Result<Boolean, String> subtractCurrency(UUID player, long amount){
         return getPlayer(player).wallet.subtractBalance(amount);
     }
-    public static BooleanWithError transferCurrency(UUID player1,UUID player2,long amount){
+    public static Result<Boolean, String> transferCurrency(UUID player1, UUID player2, long amount){
         return getPlayer(player1).wallet.transfer(getPlayer(player2).wallet,amount);
     }
     public static long getCurrency(UUID player) {

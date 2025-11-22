@@ -37,6 +37,7 @@ repositories {
           //  includeGroup("cc.tweaked")
         //}
     }
+    mavenLocal()
 }
 
 dependencies {
@@ -57,6 +58,7 @@ dependencies {
     include modImplementation("eu.pb4:sgui:${project.sgui_version}")
     compileOnly("cc.tweaked:cc-tweaked-${cc_tweaked_minecraft_version}-common-api:${cc_tweaked_version}")
     modRuntimeOnly("cc.tweaked:cc-tweaked-${cc_tweaked_minecraft_version}-fabric:${cc_tweaked_version}")
+    include modImplementation("com.snek:frameworklib:${project.frameworklib_version}")
 }
 
 processResources {

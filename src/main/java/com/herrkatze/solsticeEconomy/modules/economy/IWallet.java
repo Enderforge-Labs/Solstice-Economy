@@ -1,14 +1,15 @@
 package com.herrkatze.solsticeEconomy.modules.economy;
 
+import com.snek.frameworklib.utils.Result;
 import org.jetbrains.annotations.NotNull;
 
 public interface IWallet {
     long getBalance();
     @NotNull
-    BooleanWithError transfer(IWallet wallet,long amount);
+    Result<Boolean,String> transfer(IWallet wallet, long amount);
     @NotNull
-    BooleanWithError addBalance(long amount);
+    Result<Boolean,String> addBalance(long amount);
     @NotNull
-    BooleanWithError subtractBalance(long amount);
+    Result<Boolean,String> subtractBalance(long amount);
     void setBalance(long amount);
 }

@@ -50,7 +50,7 @@ public class CCWallet {
             return MethodResult.of(false,"Player does not exist");
         }
         var success = EconomyManager.transferCurrency(ownerUUID,targetUUID,realAmount);
-        if(EconomyModule.isCCPresent() && success.get()) {
+        if(EconomyModule.isCCPresent() && success.is_ok()) {
             var targetProfile = target.get();
             CCEvents.fireEvent(targetUUID,"computer_transfer",targetProfile.getName(),(double) EconomyManager.getCurrency(targetUUID) / 100d,(double) realAmount/100d,CurrencyRenderer.renderCurrency(EconomyManager.getCurrency(targetUUID)).getString(),CurrencyRenderer.renderCurrency(realAmount).getString());
         }
@@ -73,7 +73,7 @@ public class CCWallet {
             return MethodResult.of(false,"Player does not exist");
         }
         var success = EconomyManager.transferCurrency(ownerUUID,targetUUID,realAmount);
-        if(EconomyModule.isCCPresent() && success.get()) {
+        if(EconomyModule.isCCPresent() && success.is_ok()) {
             var targetProfile = target.get();
             CCEvents.fireEvent(targetUUID,"computer_transfer",targetProfile.getName(),(double) EconomyManager.getCurrency(targetUUID) / 100d,(double) realAmount/100d,CurrencyRenderer.renderCurrency(EconomyManager.getCurrency(targetUUID)).getString(),CurrencyRenderer.renderCurrency(realAmount).getString());
         }
@@ -95,7 +95,7 @@ public class CCWallet {
             return MethodResult.of(false,"Player does not exist");
         }
         var success = EconomyManager.transferCurrency(ownerUUID,targetUUID,realAmount);
-        if(EconomyModule.isCCPresent() && success.get()) {
+        if(EconomyModule.isCCPresent() && success.is_ok()) {
             var targetProfile = target.get();
             CCEvents.fireEvent(targetUUID,"computer_refund",targetProfile.getName(),(double) EconomyManager.getCurrency(targetUUID) / 100d,(double) realAmount/100d,CurrencyRenderer.renderCurrency(EconomyManager.getCurrency(targetUUID)).getString(),CurrencyRenderer.renderCurrency(realAmount).getString());
         }
@@ -118,7 +118,7 @@ public class CCWallet {
             return MethodResult.of(false,"Player does not exist");
         }
         var success = EconomyManager.transferCurrency(ownerUUID,targetUUID,realAmount);
-        if(EconomyModule.isCCPresent() && success.get()) {
+        if(EconomyModule.isCCPresent() && success.is_ok()) {
             var targetProfile = target.get();
             CCEvents.fireEvent(targetUUID,"computer_refund",targetProfile.getName(),(double) EconomyManager.getCurrency(targetUUID) / 100d,(double) realAmount/100d,CurrencyRenderer.renderCurrency(EconomyManager.getCurrency(targetUUID)).getString(),CurrencyRenderer.renderCurrency(realAmount).getString());
         }

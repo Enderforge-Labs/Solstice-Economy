@@ -80,8 +80,8 @@ public class PayCommand extends ModCommand<EconomyModule> {
             return 0;
         }
         var success = EconomyManager.transferCurrency(player1UUID,player2.getId(),amount);
-        if (!success.get()) {
-            context.getSource().sendFailure(module.locale().get("error",Map.of("error",Component.literal(success.getError()))));
+        if (!success.is_ok()) {
+            context.getSource().sendFailure(module.locale().get("error",Map.of("error",Component.literal(success.err().unwrap()))));
             return 0;
         }
         if(EconomyModule.isCCPresent()) {
