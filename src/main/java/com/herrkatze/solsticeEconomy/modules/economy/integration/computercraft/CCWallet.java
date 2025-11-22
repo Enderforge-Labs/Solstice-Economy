@@ -19,7 +19,9 @@ public class CCWallet {
     }
     @LuaFunction
     public final String getOwner() throws LuaException {
-        var ownerUUID = LicenseManager.getOwner(this.pkey);
+        var owner = LicenseManager.getOwner(this.pkey);
+        if (owner.is_err()) {throw new LuaException("Invalid wallet. Please re-generate your key and get a new wallet object.");}
+        var ownerUUID = owner.unwrap();
         var player = Solstice.getUserCache().getByUUID(ownerUUID);
         if (player.isPresent()) {
             return player.get().getName();
@@ -30,14 +32,18 @@ public class CCWallet {
         }
     }
     @LuaFunction
-    public final MethodResult getBalance(){
-        var ownerUUID = LicenseManager.getOwner(this.pkey);
+    public final MethodResult getBalance() throws LuaException {
+        var owner = LicenseManager.getOwner(this.pkey);
+        if (owner.is_err()) {throw new LuaException("Invalid wallet. Please re-generate your key and get a new wallet object.");}
+        var ownerUUID = owner.unwrap();
         var balance = EconomyManager.getCurrency(ownerUUID);
         return MethodResult.of((double) balance / 100d, CurrencyRenderer.renderCurrency(balance).getString()); // Convert to double for CC API.
     }
     @LuaFunction
     public final MethodResult transfer(IArguments arguments) throws LuaException {
-        var ownerUUID = LicenseManager.getOwner(this.pkey);
+        var owner = LicenseManager.getOwner(this.pkey);
+        if (owner.is_err()) {throw new LuaException("Invalid wallet. Please re-generate your key and get a new wallet object.");}
+        var ownerUUID = owner.unwrap();
         var player = arguments.getString(0);
         double amount = arguments.getDouble(1);
         long realAmount = (long) (amount * 100);
@@ -60,7 +66,9 @@ public class CCWallet {
     }
     @LuaFunction
     public final MethodResult transferString(IArguments arguments) throws LuaException {
-        var ownerUUID = LicenseManager.getOwner(this.pkey);
+        var owner = LicenseManager.getOwner(this.pkey);
+        if (owner.is_err()) {throw new LuaException("Invalid wallet. Please re-generate your key and get a new wallet object.");}
+        var ownerUUID = owner.unwrap();
         var player = arguments.getString(0);
         var amount = arguments.getString(1);
         long realAmount = CurrencyParser.parseCents(amount);
@@ -82,7 +90,9 @@ public class CCWallet {
         return MethodResult.of(success);
     } @LuaFunction
     public final MethodResult refund(IArguments arguments) throws LuaException {
-        var ownerUUID = LicenseManager.getOwner(this.pkey);
+        var owner = LicenseManager.getOwner(this.pkey);
+        if (owner.is_err()) {throw new LuaException("Invalid wallet. Please re-generate your key and get a new wallet object.");}
+        var ownerUUID = owner.unwrap();
         var player = arguments.getString(0);
         double amount = arguments.getDouble(1);
         long realAmount = (long) (amount * 100);
@@ -105,7 +115,9 @@ public class CCWallet {
     }
     @LuaFunction
     public final MethodResult refundString(IArguments arguments) throws LuaException {
-        var ownerUUID = LicenseManager.getOwner(this.pkey);
+        var owner = LicenseManager.getOwner(this.pkey);
+        if (owner.is_err()) {throw new LuaException("Invalid wallet. Please re-generate your key and get a new wallet object.");}
+        var ownerUUID = owner.unwrap();
         var player = arguments.getString(0);
         var amount = arguments.getString(1);
         long realAmount = CurrencyParser.parseCents(amount);

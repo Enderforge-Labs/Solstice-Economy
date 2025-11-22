@@ -99,7 +99,10 @@ public class EconomyCommand extends ModCommand<EconomyModule> {
             return 0;
         }
         var uuid = player.getUUID();
-        LicenseManager.invalidateKey(LicenseManager.getKey(uuid));
+        var key = LicenseManager.getKey(uuid);
+        if (key.is_ok()) {
+            LicenseManager.invalidateKey(key.unwrap());
+        }
         context.getSource().sendSuccess(() ->module.locale().get("licenseRevoke"),false);
         return 1;
     }
@@ -135,28 +138,33 @@ public class EconomyCommand extends ModCommand<EconomyModule> {
         }
         var uuid = player.getUUID();
         var key = LicenseManager.getKey(uuid);
-        if (key == null) {
+        if (key.is_err()) {
             context.getSource().sendFailure(Component.literal("You do not have a license key, use /eco license register"));
             return 0;
         }
         Map<String,Component> map = Map.of(
-                "key",Component.literal(key.toString())
+                "key",Component.literal(key.unwrap().toString())
         );
         context.getSource().sendSuccess(()-> module.locale().get("licenseKey",map),false);
         return 1;
     }
     private int executeAdd(CommandContext<CommandSourceStack> context, GameProfile player, long amount) {
-        addCurrency(player.getId(),amount);
-        Map<String, Component> map = Map.of(
-                "amount",renderCurrency(amount),
-                "player",Component.literal(player.getName())
-        );
-        context.getSource().sendSuccess(() -> module.locale().get("addCurrencySuccess",map),true);
-        ServerPlayer player1 = context.getSource().getServer().getPlayerList().getPlayer(player.getId());
-        if (player1 != null) {
-            NotificationManager.sendNotification(new Notification(module.locale().get("currencyAddNotification",map)),player1); // Use custom notification here since only the admin command will use this specific message
+        var success = addCurrency(player.getId(),amount);
+        if (success.is_ok()) {
+            Map<String, Component> map = Map.of(
+                    "amount", renderCurrency(amount),
+                    "player", Component.literal(player.getName())
+            );
+            context.getSource().sendSuccess(() -> module.locale().get("addCurrencySuccess", map), true);
+            ServerPlayer player1 = context.getSource().getServer().getPlayerList().getPlayer(player.getId());
+            if (player1 != null) {
+                NotificationManager.sendNotification(new Notification(module.locale().get("currencyAddNotification", map)), player1); // Use custom notification here since only the admin command will use this specific message
+            }
+            return 1;
+        }else {
+            context.getSource().sendFailure(Component.literal("Failed to add currency: ").append(success.unwrap_err())); // TODO: Use locale here
+            return 0;
         }
-        return 1;
     }
     private int executeSet(CommandContext<CommandSourceStack> context, GameProfile player, long amount) {
         setCurrency(player.getId(), amount);
@@ -172,17 +180,23 @@ public class EconomyCommand extends ModCommand<EconomyModule> {
         return 1;
     }
     private int executeSubtract(CommandContext<CommandSourceStack> context, GameProfile player,long amount) {
-        subtractCurrency(player.getId(), amount);
-        Map<String, Component> map = Map.of(
-                "amount", renderCurrency(amount),
-                "player",Component.literal(player.getName())
-        );
-        context.getSource().sendSuccess(() -> module.locale().get("subtractCurrencySuccess",map),true);
-        ServerPlayer player1 = context.getSource().getServer().getPlayerList().getPlayer(player.getId());
-        if (player1 != null) {
-            NotificationManager.sendNotification(new Notification(module.locale().get("currencySubtractNotification",map)),player1);
+        var success = subtractCurrency(player.getId(), amount);
+        if (success.is_ok()) {
+            Map<String, Component> map = Map.of(
+                    "amount", renderCurrency(amount),
+                    "player", Component.literal(player.getName())
+            );
+            context.getSource().sendSuccess(() -> module.locale().get("subtractCurrencySuccess", map), true);
+            ServerPlayer player1 = context.getSource().getServer().getPlayerList().getPlayer(player.getId());
+            if (player1 != null) {
+                NotificationManager.sendNotification(new Notification(module.locale().get("currencySubtractNotification", map)), player1);
+            }
+            return 1;
         }
-        return 1;
+        else {
+            context.getSource().sendFailure(Component.literal("Failed to subtract currency").append(success.unwrap_err())); // TODO: Use locale here
+            return 0;
+        }
     }
 
 

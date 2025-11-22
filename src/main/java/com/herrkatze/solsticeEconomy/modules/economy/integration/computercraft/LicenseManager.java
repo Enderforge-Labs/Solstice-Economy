@@ -1,6 +1,7 @@
 package com.herrkatze.solsticeEconomy.modules.economy.integration.computercraft;
 
 import com.herrkatze.solsticeEconomy.modules.economy.EconomyModule;
+import com.snek.frameworklib.utils.Result;
 import me.alexdevs.solstice.Solstice;
 
 import java.util.UUID;
@@ -22,17 +23,29 @@ public class LicenseManager {
     public static void invalidateKey(UUID licenseKey) {
         CCEvents.removeAllComputers(licenseKey);
         var owner = getOwner(licenseKey);
-        getModule().getPlayer(owner).key = null;
-        getModule().getServerData().keyMap.remove(licenseKey);
+        if (owner.is_ok()) {
+            getModule().getPlayer(owner.unwrap()).key = null;
+            getModule().getServerData().keyMap.remove(licenseKey);
+        }else {
+            Solstice.LOGGER.error("Attempt to invalidate license key for already invalid key.");
+        }
     }
 
     private static EconomyModule getModule() {
         return Solstice.modules.getModule(EconomyModule.class);
     }
-    public static UUID getOwner(UUID key){
-        return getModule().getServerData().keyMap.get(key);
+    public static Result<UUID,String> getOwner(UUID key){
+        try {
+            return Result.Ok(getModule().getServerData().keyMap.get(key));
+        } catch (Exception e) {
+            return Result.Err(e.toString());
+        }
     }
-    public static UUID getKey(UUID player){
-        return getModule().getPlayer(player).key;
+    public static Result<UUID,String> getKey(UUID player){
+        try {
+            return Result.Ok(getModule().getPlayer(player).key);
+        } catch (Exception e) {
+            return Result.Err(e.toString());
+        }
     }
 }
